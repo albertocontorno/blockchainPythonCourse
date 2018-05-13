@@ -39,16 +39,24 @@ def print_blockchainelements():
 def verify_chain():
     block_index = 0
     is_valid = True
-    for block in blockchain:
+    for block_index in range(len(blockchain)):
         if block_index == 0:
-            block_index += 1
             continue
-        elif block[0] == blockchain[block_index - 1]:
+        elif blockchain[block_index][0] == blockchain[block_index - 1]:
             is_valid = True
         else:
             is_valid = False
-            break
-        block_index += 1
+            break    
+    # for block in blockchain:
+    #     if block_index == 0:
+    #         block_index += 1
+    #         continue
+    #     elif block[0] == blockchain[block_index - 1]:
+    #         is_valid = True
+    #     else:
+    #         is_valid = False
+    #         break
+    #     block_index += 1
 
     return is_valid
 
