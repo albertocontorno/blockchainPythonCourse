@@ -1,10 +1,10 @@
 # Initializing our blockchain list
 genesis_block = {
-    'previous_hash': '', 
-    'index': 0, 
+    'previous_hash': '',
+    'index': 0,
     'transaction': []
 }
-blockchain = []
+blockchain = [genesis_block]
 open_transactions = []
 owner = 'Myself'
 
@@ -29,10 +29,15 @@ def add_transaction(recipient, sender=owner, amount=1.0):
 
 def mine_block():
     last_block = blockchain[-1]
-    block = { 
-        'previous_hash': 'XYZ', 
-        'index': len(blockchain), 
-        'transaction': open_transactions 
+    hashed_block = ""
+    for key in last_block:
+        value = last_block[key]
+        hashed_block += str(value)
+
+    block = {
+        'previous_hash': hashed_block,
+        'index': len(blockchain),
+        'transaction': open_transactions
     }
     blockchain.append(block)
 
@@ -83,7 +88,8 @@ waiting_for_input = True
 while waiting_for_input:
     print("Please choose:")
     print("1: Add a new transaction value")
-    print("2: Output the blockchain blocks")
+    print("2: Mina a new block")
+    print("3: Output the blockchain blocks")
     print("h: Manipulate the chain")
     print("q: To quit")
     user_choice = get_user_choice()
@@ -93,6 +99,8 @@ while waiting_for_input:
         add_transaction(recipient, amount=amount)
         print(open_transactions)
     elif(user_choice == "2"):
+        mine_block()
+    elif(user_choice == "3"):
         print_blockchainelements()
     elif(user_choice == "h"):
         if len(blockchain) > 0:
@@ -101,9 +109,10 @@ while waiting_for_input:
         waiting_for_input = False
     else:
         print("Input was invalid, please pick a value from the list")
-    if verify_chain() == False:
-        print("invalid blockchain")
-        waiting_for_input = False
+
+    # if verify_chain() == False:
+    #     print("invalid blockchain")
+    #     waiting_for_input = False
 
 else:
     print("User left!")
