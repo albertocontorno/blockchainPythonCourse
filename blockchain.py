@@ -1,16 +1,34 @@
+MINING_REWARD = 10
+
 # Initializing our blockchain list
 genesis_block = {
-    'previous_hash': '',
-    'index': 0,
-    'transaction': []
+    "previous_hash": "",
+    "index": 0,
+    "transactions": []
 }
 blockchain = [genesis_block]
 open_transactions = []
-owner = 'Myself'
+owner = "Myself"
 partecipants = set([owner])
-
+1
 def hash_block(block):
-    return '-'.join( [ str(block[key]) for key in block] )
+    return "-".join( [ str(block[key]) for key in block] )
+
+def get_balance(partecipant):
+    tx_sender = [[tx["amount"] for tx in block["transactions"] if tx["sender"] == partecipant] for block in blockchain]
+    print("TX_SENDER ", tx_sender)
+    open_tx_sender = [tx["amount"] for tx in open_transactions if tx["sender"] == partecipant]
+    tx_sender.append(open_tx_sender)
+    amount_sent = 0
+    for tx in tx_sender:
+        if len(tx) > 0:
+            amount_sent += tx[0] 
+    tx_recipient = [ [tx["amount"] for tx in block["transactions"] if tx["recipient"] == partecipant] for block in blockchain]
+    amount_recieve = 0
+    for tx in tx_recipient:
+        if len(tx) > 0:
+            amount_recieve += tx[0] 
+    return  amount_recieve - amount_sent
 
 def get_last_blockchain_value():
     """ Return the last value of the current blockchain. """
@@ -18,6 +36,9 @@ def get_last_blockchain_value():
         return None
     return blockchain[-1]
 
+def verify_transaction(transaction):
+    sender_balance = get_balance(transaction["sender"])
+    return sender_balance >= transaction["amount"]
 
 def add_transaction(recipient, sender=owner, amount=1.0):
     """ Append a new value as well as the last blockchain value to the blockchain.
@@ -26,10 +47,13 @@ def add_transaction(recipient, sender=owner, amount=1.0):
         :recipient: The recipient of the coins 
         :param: amount: The amount of coins sent with the transaction (default = 1.0)
     """
-    transaction = {'sender': sender, 'recipient': recipient, 'amount': amount}
-    open_transactions.append(transaction)
-    partecipants.add(sender)
-    partecipants.add(recipient)
+    transaction = {"sender": sender, "recipient": recipient, "amount": amount}
+    if(verify_transaction(transaction)):
+        open_transactions.append(transaction)
+        partecipants.add(sender)
+        partecipants.add(recipient)
+        return True
+    return False
 
 
 def mine_block():
@@ -38,10 +62,16 @@ def mine_block():
     #     value = last_block[key]
     #     hashed_block += str(value)
     hashed_block  = hash_block(last_block)
+    reward_transaction = {
+        "sender": "MINING",
+        "recipient": owner,
+        "amount": MINING_REWARD
+    }
+    open_transactions.append(reward_transaction)
     block = {
-        'previous_hash': hashed_block,
-        'index': len(blockchain),
-        'transaction': open_transactions
+        "previous_hash": hashed_block,
+        "index": len(blockchain),
+        "transactions": open_transactions
     }
     blockchain.append(block)
     return True
@@ -78,7 +108,7 @@ waiting_for_input = True
 while waiting_for_input:
     print("Please choose:")
     print("1: Add a new transaction value")
-    print("2: Mina a new block")
+    print("2: Min a new block")
     print("3: Output the blockchain blocks")
     print("4: Output the partecipants")
     print("h: Manipulate the chain")
@@ -87,7 +117,10 @@ while waiting_for_input:
     if(user_choice == "1"):
         tx_data = get_transaction_value()
         recipient, amount = tx_data
-        add_transaction(recipient, amount=amount)
+        if add_transaction(recipient, amount=amount):
+            print("Added transaction!")
+        else:
+            print("Transaction failed")
         print(open_transactions)
     elif(user_choice == "2"):
         if mine_block():
@@ -99,9 +132,9 @@ while waiting_for_input:
     elif(user_choice == "h"):
         if len(blockchain) > 0:
             blockchain[0] = {
-                'previous_hash': '',
-                'index': 0,
-                'transaction': [{'sender': 'Chris', 'recipient': 'Max', 'amount': 100}]
+                "previous_hash": "",
+                "index": 0,
+                "transactions": [{"sender": "Chris", "recipient": "Max", "amount": 100}]
              }
     elif(user_choice == "q"):
         waiting_for_input = False
@@ -111,7 +144,7 @@ while waiting_for_input:
     if verify_chain() == False:
         print("invalid blockchain")
         waiting_for_input = False
-
+    print(get_balance(owner))
 else:
     print("User left!")
 
