@@ -10,13 +10,12 @@ blockchain = [genesis_block]
 open_transactions = []
 owner = "Myself"
 partecipants = set([owner])
-1
+
 def hash_block(block):
     return "-".join( [ str(block[key]) for key in block] )
 
 def get_balance(partecipant):
     tx_sender = [[tx["amount"] for tx in block["transactions"] if tx["sender"] == partecipant] for block in blockchain]
-    print("TX_SENDER ", tx_sender)
     open_tx_sender = [tx["amount"] for tx in open_transactions if tx["sender"] == partecipant]
     tx_sender.append(open_tx_sender)
     amount_sent = 0
@@ -103,6 +102,8 @@ def verify_chain():
             return False
     return True
         
+def verify_transactions():
+    return all( [ verify_transaction(tx) for tx in open_transactions] )
 
 waiting_for_input = True
 while waiting_for_input:
@@ -111,6 +112,7 @@ while waiting_for_input:
     print("2: Min a new block")
     print("3: Output the blockchain blocks")
     print("4: Output the partecipants")
+    print("5: Check transaction validity")
     print("h: Manipulate the chain")
     print("q: To quit")
     user_choice = get_user_choice()
@@ -129,6 +131,11 @@ while waiting_for_input:
         print_blockchainelements()
     elif(user_choice == "4"):
         print(partecipants)
+    elif(user_choice == "5"):
+        if verify_transactions():
+            print("All transactions are valid")
+        else:
+            print("A transaction is invalid")
     elif(user_choice == "h"):
         if len(blockchain) > 0:
             blockchain[0] = {
