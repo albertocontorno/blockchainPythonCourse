@@ -1,3 +1,5 @@
+import functools
+
 MINING_REWARD = 10
 
 # Initializing our blockchain list
@@ -19,14 +21,12 @@ def get_balance(partecipant):
     open_tx_sender = [tx["amount"] for tx in open_transactions if tx["sender"] == partecipant]
     tx_sender.append(open_tx_sender)
     amount_sent = 0
-    for tx in tx_sender:
-        if len(tx) > 0:
-            amount_sent += tx[0] 
+    amount_sent = functools.reduce(lambda tx_sum, tx_amt: tx_sum + sum(tx_amt) if len(tx_amt) > 0 else tx_sum + 0, tx_sender, 0)
+    
     tx_recipient = [ [tx["amount"] for tx in block["transactions"] if tx["recipient"] == partecipant] for block in blockchain]
     amount_recieve = 0
-    for tx in tx_recipient:
-        if len(tx) > 0:
-            amount_recieve += tx[0] 
+    amount_recieve = functools.reduce(lambda tx_sum, tx_amt: tx_sum + sum(tx_amt) if len(tx_amt) > 0 else tx_sum + 0, tx_recipient, 0)
+
     return  amount_recieve - amount_sent
 
 def get_last_blockchain_value():
@@ -151,7 +151,7 @@ while waiting_for_input:
     if verify_chain() == False:
         print("invalid blockchain")
         waiting_for_input = False
-    print(get_balance(owner))
+    print('Balance of {}: {:6.2f}'.format(owner, get_balance(owner)))
 else:
     print("User left!")
 
