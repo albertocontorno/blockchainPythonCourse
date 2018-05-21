@@ -1,3 +1,8 @@
 .vscode/settings.json
 
 .vscode/launch.json
+files.py
+exercises/
+blockchain.p
+demo.txt
+__pycache__
