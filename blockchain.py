@@ -10,13 +10,14 @@ from verification import Verification
 
 MINING_REWARD = 10
 class Blockchain:
-    def __init__(self):
+    def __init__(self, hosting_node):
         # Initializing our blockchain list
         genesis_block = Block("", 0, [], 100, 0)
         # Initializing our blockchain list
         self.chain = [genesis_block]
         self.open_transactions = []
         self.load_data()
+        self.hosting_node = hosting_node_id
 
 #partecipants = set([owner])
 
@@ -80,6 +81,8 @@ class Blockchain:
 
 
     def get_balance(self, partecipant):
+        partecipant = self.hosting_node
+
         tx_sender = [[tx.amount for tx in block.transactions
                     if tx.sender == partecipant] for block in self.chain]
         open_tx_sender = [tx.amount for tx in self.open_transactions if tx["sender"] == partecipant]
@@ -127,7 +130,7 @@ class Blockchain:
         return False
 
 
-    def mine_block(self, node):
+    def mine_block(self):
         print("BLOCKCHAIN ", self.chain)
         last_block = self.chain[-1]
         # for key in last_block:
@@ -140,13 +143,14 @@ class Blockchain:
         #     "recipient": owner,
         #     "amount": MINING_REWARD
         # }
-        reward_transaction = Transaction("MINING", node, MINING_REWARD)
+        reward_transaction = Transaction("MINING", self.hosting_node, MINING_REWARD)
         #reward_transaction = OrderedDict([("sender", "MINING"), ("recipient", owner), ("amount", MINING_REWARD)])
 
         copied_transactions = self.open_transactions[:]
         copied_transactions.append(reward_transaction)
         block = Block(hashed_block, len(self.chain),  copied_transactions, proof)
         self.chain.append(block)
+        self.open_transactions = []
         self.save_data()
         return True
 
