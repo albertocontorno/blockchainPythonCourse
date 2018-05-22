@@ -2,12 +2,11 @@ from functools import reduce
 import hashlib as hash
 import json
 import pickle
-from hash_util import hash_block
 from collections import OrderedDict
 from block import Block
 from transaction import Transaction
-from verification import Verification
-
+from utility.hash_util import hash_block
+from utility.verification import Verification
 MINING_REWARD = 10
 class Blockchain:
     def __init__(self, hosting_node_id):
