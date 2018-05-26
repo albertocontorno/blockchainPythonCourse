@@ -18,6 +18,7 @@ class Blockchain:
         self.__open_transactions = []
         self.load_data()
         self.hosting_node = hosting_node_id
+        self.peer_nodes = set()
 
 #partecipants = set([owner])
 
@@ -90,6 +91,8 @@ class Blockchain:
 
 
     def get_balance(self):
+        if self.hosting_node == None:
+            return None
         partecipant = self.hosting_node
 
         tx_sender = [[tx.amount for tx in block.transactions
@@ -144,7 +147,7 @@ class Blockchain:
 
     def mine_block(self):
         if self.hosting_node == None:
-            return False
+            return None
         print("BLOCKCHAIN ", self.__chain)
         last_block = self.__chain[-1]
         # for key in last_block:
@@ -161,15 +164,15 @@ class Blockchain:
         #reward_transaction = OrderedDict([("sender", "MINING"), ("recipient", owner), ("amount", MINING_REWARD)])
 
         copied_transactions = self.__open_transactions[:]
-        for tx in block.transactions:
+        for tx in copied_transactions:
             if not Wallet.verify_transaction(tx):
-                return False
+                return None
         copied_transactions.append(reward_transaction)
         block = Block(hashed_block, len(self.__chain),  copied_transactions, proof)
 
         self.__chain.append(block)
         self.__open_transactions = []
         self.save_data()
-        return True
+        return block
 
 
